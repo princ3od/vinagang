@@ -6,17 +6,61 @@
     "slackId": "U0BES173YUX",
     "role": "SAP Basis Architect",
     "dept": "Platform Engineering",
-    "skills": ["SAP Basis", "SAP on Azure", "Azure migration", "SAP HANA", "Terraform"],
+    "skills": [
+      "SAP Basis",
+      "SAP on Azure",
+      "Azure migration",
+      "SAP HANA",
+      "Terraform"
+    ],
     "projects": [
-      { "name": "Contoso SAP-on-Azure migration", "role": "Lead", "year": 2024, "outcome": "Migrated 12 SAP systems to Azure, 30% infra cost cut" }
+      {
+        "name": "Contoso SAP-on-Azure migration",
+        "role": "Lead",
+        "year": 2024,
+        "outcome": "Migrated 12 SAP systems to Azure, 30% infra cost cut"
+      }
     ],
-    "codeowners": [{ "repo": "azure-sap-landingzone", "languages": ["Terraform", "Bicep"] }],
-    "jira": [{ "component": "SAP / Azure", "resolved": 24 }],
+    "codeowners": [
+      {
+        "repo": "azure-sap-landingzone",
+        "languages": [
+          "Terraform",
+          "Bicep"
+        ]
+      }
+    ],
+    "jira": [
+      {
+        "component": "SAP / Azure",
+        "resolved": 24
+      }
+    ],
     "certs": [
-      { "name": "Azure Solutions Architect Expert", "issuer": "Microsoft", "year": 2023 },
-      { "name": "SAP HANA Technology", "issuer": "SAP", "year": 2022 }
+      {
+        "name": "Azure Solutions Architect Expert",
+        "issuer": "Microsoft",
+        "year": 2023
+      },
+      {
+        "name": "SAP HANA Technology",
+        "issuer": "SAP",
+        "year": 2022
+      }
     ],
-    "availability": { "status": "available", "label": "Available now", "freeAt": null }
+    "availability": {
+      "status": "available",
+      "label": "Available now",
+      "freeAt": null
+    },
+    "git": {
+      "commits": 14,
+      "areas": [
+        "sap-azure"
+      ],
+      "lastActive": "2026-07-03",
+      "repo": "sample-repo"
+    }
   },
   {
     "id": "marcus-rivera",
@@ -25,15 +69,61 @@
     "slackId": "U0BF99LMS49",
     "role": "Cloud Infrastructure Lead",
     "dept": "Platform Engineering",
-    "skills": ["Azure landing zones", "Azure migration", "Networking", "Terraform", "Bicep"],
-    "projects": [
-      { "name": "Azure landing zone rollout", "role": "Lead", "year": 2023, "outcome": "Standardized landing zones for 40 teams" },
-      { "name": "Northwind SAP migration", "role": "Co-lead", "year": 2023, "outcome": "Lifted SAP ECC to Azure" }
+    "skills": [
+      "Azure landing zones",
+      "Azure migration",
+      "Networking",
+      "Terraform",
+      "Bicep"
     ],
-    "codeowners": [{ "repo": "azure-landing-zone", "languages": ["Terraform"] }],
-    "jira": [{ "component": "Azure Platform", "resolved": 31 }],
-    "certs": [{ "name": "Azure Solutions Architect Expert", "issuer": "Microsoft", "year": 2022 }],
-    "availability": { "status": "soon", "label": "Free after 2:00 PM", "freeAt": "2:00 PM" }
+    "projects": [
+      {
+        "name": "Azure landing zone rollout",
+        "role": "Lead",
+        "year": 2023,
+        "outcome": "Standardized landing zones for 40 teams"
+      },
+      {
+        "name": "Northwind SAP migration",
+        "role": "Co-lead",
+        "year": 2023,
+        "outcome": "Lifted SAP ECC to Azure"
+      }
+    ],
+    "codeowners": [
+      {
+        "repo": "azure-landing-zone",
+        "languages": [
+          "Terraform"
+        ]
+      }
+    ],
+    "jira": [
+      {
+        "component": "Azure Platform",
+        "resolved": 31
+      }
+    ],
+    "certs": [
+      {
+        "name": "Azure Solutions Architect Expert",
+        "issuer": "Microsoft",
+        "year": 2022
+      }
+    ],
+    "availability": {
+      "status": "soon",
+      "label": "Free after 2:00 PM",
+      "freeAt": "2:00 PM"
+    },
+    "git": {
+      "commits": 11,
+      "areas": [
+        "azure-landingzone"
+      ],
+      "lastActive": "2026-07-01",
+      "repo": "sample-repo"
+    }
   },
   {
     "id": "priya-nair",
@@ -42,12 +132,47 @@
     "slackId": "U0BF5BW416J",
     "role": "SAP Functional Consultant",
     "dept": "ERP",
-    "skills": ["SAP FI/CO", "SAP functional", "SAP S/4HANA", "Business process"],
-    "projects": [{ "name": "S/4HANA finance rollout", "role": "Consultant", "year": 2024, "outcome": "Go-live across 6 entities" }],
+    "skills": [
+      "SAP FI/CO",
+      "SAP functional",
+      "SAP S/4HANA",
+      "Business process"
+    ],
+    "projects": [
+      {
+        "name": "S/4HANA finance rollout",
+        "role": "Consultant",
+        "year": 2024,
+        "outcome": "Go-live across 6 entities"
+      }
+    ],
     "codeowners": [],
-    "jira": [{ "component": "SAP Functional", "resolved": 18 }],
-    "certs": [{ "name": "SAP S/4HANA Finance", "issuer": "SAP", "year": 2023 }],
-    "availability": { "status": "busy", "label": "In a meeting until 4:30 PM", "freeAt": "4:30 PM" }
+    "jira": [
+      {
+        "component": "SAP Functional",
+        "resolved": 18
+      }
+    ],
+    "certs": [
+      {
+        "name": "SAP S/4HANA Finance",
+        "issuer": "SAP",
+        "year": 2023
+      }
+    ],
+    "availability": {
+      "status": "busy",
+      "label": "In a meeting until 4:30 PM",
+      "freeAt": "4:30 PM"
+    },
+    "git": {
+      "commits": 7,
+      "areas": [
+        "sap-finance"
+      ],
+      "lastActive": "2026-06-25",
+      "repo": "sample-repo"
+    }
   },
   {
     "id": "tomas-fischer",
@@ -56,12 +181,56 @@
     "slackId": "U0BES173YUX",
     "role": "Site Reliability Engineer",
     "dept": "Platform Engineering",
-    "skills": ["Kubernetes", "Cost optimization", "FinOps", "Prometheus", "Autoscaling"],
-    "projects": [{ "name": "K8s cost reduction program", "role": "Lead", "year": 2024, "outcome": "Cut cluster spend 38%" }],
-    "codeowners": [{ "repo": "k8s-platform", "languages": ["Go", "Helm"] }],
-    "jira": [{ "component": "Kubernetes", "resolved": 27 }],
-    "certs": [{ "name": "Certified Kubernetes Administrator", "issuer": "CNCF", "year": 2023 }],
-    "availability": { "status": "available", "label": "Available now", "freeAt": null }
+    "skills": [
+      "Kubernetes",
+      "Cost optimization",
+      "FinOps",
+      "Prometheus",
+      "Autoscaling"
+    ],
+    "projects": [
+      {
+        "name": "K8s cost reduction program",
+        "role": "Lead",
+        "year": 2024,
+        "outcome": "Cut cluster spend 38%"
+      }
+    ],
+    "codeowners": [
+      {
+        "repo": "k8s-platform",
+        "languages": [
+          "Go",
+          "Helm"
+        ]
+      }
+    ],
+    "jira": [
+      {
+        "component": "Kubernetes",
+        "resolved": 27
+      }
+    ],
+    "certs": [
+      {
+        "name": "Certified Kubernetes Administrator",
+        "issuer": "CNCF",
+        "year": 2023
+      }
+    ],
+    "availability": {
+      "status": "available",
+      "label": "Available now",
+      "freeAt": null
+    },
+    "git": {
+      "commits": 9,
+      "areas": [
+        "k8s-cost"
+      ],
+      "lastActive": "2026-06-30",
+      "repo": "sample-repo"
+    }
   },
   {
     "id": "aiko-tanaka",
@@ -70,12 +239,55 @@
     "slackId": "U0BF99LMS49",
     "role": "Data Governance Lead",
     "dept": "Legal & Compliance",
-    "skills": ["GDPR", "Data retention", "Privacy", "Data classification"],
-    "projects": [{ "name": "Global data-retention program", "role": "Lead", "year": 2024, "outcome": "Retention policy across 22 systems" }],
-    "codeowners": [{ "repo": "data-retention-policy", "languages": ["Markdown", "Python"] }],
-    "jira": [{ "component": "Privacy / GDPR", "resolved": 15 }],
-    "certs": [{ "name": "CIPP/E", "issuer": "IAPP", "year": 2022 }],
-    "availability": { "status": "available", "label": "Available now", "freeAt": null }
+    "skills": [
+      "GDPR",
+      "Data retention",
+      "Privacy",
+      "Data classification"
+    ],
+    "projects": [
+      {
+        "name": "Global data-retention program",
+        "role": "Lead",
+        "year": 2024,
+        "outcome": "Retention policy across 22 systems"
+      }
+    ],
+    "codeowners": [
+      {
+        "repo": "data-retention-policy",
+        "languages": [
+          "Markdown",
+          "Python"
+        ]
+      }
+    ],
+    "jira": [
+      {
+        "component": "Privacy / GDPR",
+        "resolved": 15
+      }
+    ],
+    "certs": [
+      {
+        "name": "CIPP/E",
+        "issuer": "IAPP",
+        "year": 2022
+      }
+    ],
+    "availability": {
+      "status": "available",
+      "label": "Available now",
+      "freeAt": null
+    },
+    "git": {
+      "commits": 6,
+      "areas": [
+        "gdpr"
+      ],
+      "lastActive": "2026-06-27",
+      "repo": "sample-repo"
+    }
   },
   {
     "id": "ben-osei",
@@ -84,11 +296,48 @@
     "slackId": "U0BF5BW416J",
     "role": "Senior Backend Engineer",
     "dept": "Payments",
-    "skills": ["Payments", "Node.js", "Stripe", "PostgreSQL", "Idempotency"],
-    "projects": [{ "name": "Payments service rebuild", "role": "Lead", "year": 2023, "outcome": "99.99% payment success rate" }],
-    "codeowners": [{ "repo": "payments-service", "languages": ["TypeScript"] }],
-    "jira": [{ "component": "Payments", "resolved": 41 }],
+    "skills": [
+      "Payments",
+      "Node.js",
+      "Stripe",
+      "PostgreSQL",
+      "Idempotency"
+    ],
+    "projects": [
+      {
+        "name": "Payments service rebuild",
+        "role": "Lead",
+        "year": 2023,
+        "outcome": "99.99% payment success rate"
+      }
+    ],
+    "codeowners": [
+      {
+        "repo": "payments-service",
+        "languages": [
+          "TypeScript"
+        ]
+      }
+    ],
+    "jira": [
+      {
+        "component": "Payments",
+        "resolved": 41
+      }
+    ],
     "certs": [],
-    "availability": { "status": "soon", "label": "Free after 11:30 AM", "freeAt": "11:30 AM" }
+    "availability": {
+      "status": "soon",
+      "label": "Free after 11:30 AM",
+      "freeAt": "11:30 AM"
+    },
+    "git": {
+      "commits": 12,
+      "areas": [
+        "payments"
+      ],
+      "lastActive": "2026-07-02",
+      "repo": "sample-repo"
+    }
   }
 ]
