@@ -3,7 +3,9 @@
   [Connect me]       -> opens a direct DM with that expert, cutting the manager relay.
 """
 import os
+import re
 import json
+import subprocess
 from pathlib import Path
 
 from slack_bolt import App
@@ -33,20 +35,48 @@ load_env(ROOT / ".env")
 people = json.loads((ROOT / "data" / "people.json").read_text())
 docs = json.loads((ROOT / "data" / "docs.json").read_text())
 MODEL = os.environ.get("MODEL", "gemini-2.5-flash")
+GBRAIN_BIN = os.environ.get("GBRAIN_BIN", os.path.expanduser("~/.bun/bin/gbrain"))
+USE_GBRAIN = os.environ.get("USE_GBRAIN", "").lower() in ("1", "true", "yes")
 TONE_EMOJI = {"success": ":large_green_circle:", "warning": ":large_yellow_circle:", "danger": ":red_circle:"}
 
 app = App(token=os.environ["SLACK_BOT_TOKEN"])
 
 
+def gbrain_ids(query, k=8):
+    """Candidate person ids from gbrain keyword search, or None if unavailable."""
+    try:
+        out = subprocess.run([GBRAIN_BIN, "search", query], capture_output=True, text=True, timeout=8)
+        if out.returncode != 0:
+            return None
+        seen, ordered = set(), []
+        for pid in re.findall(r"person:([a-z0-9-]+)", out.stdout):
+            if pid not in seen:
+                seen.add(pid)
+                ordered.append(pid)
+        return ordered[:k] or None
+    except Exception as e:  # noqa: BLE001 — any failure means "use the full directory"
+        print("[gbrain] search failed, using full directory:", e)
+        return None
+
+
 def answer(query):
+    # Retrieval: gbrain narrows the directory first (flagged, with fallback to all).
+    pool, retrieval = people, "all"
+    if USE_GBRAIN:
+        ids = gbrain_ids(query)
+        subset = [p for p in people if p["id"] in ids] if ids else []
+        if subset:
+            pool, retrieval = subset, "gbrain"
+
     model, source = None, "gemini"
     try:
-        model = call_gemini(query, people, MODEL, os.environ.get("GEMINI_API_KEY"))
+        model = call_gemini(query, pool, MODEL, os.environ.get("GEMINI_API_KEY"))
     except Exception as e:  # noqa: BLE001 — any failure falls back to the local ranker
         source = "fallback"
         print("[ask] using local fallback:", e)
-    result = rank_experts(query, people, docs, model)
+    result = rank_experts(query, pool, docs, model)
     result["source"] = source
+    result["retrieval"] = retrieval
     return result
 
 
@@ -80,8 +110,6 @@ def blocks_for(query, result):
     if result.get("docs"):
         links = " · ".join("<{}|{}>".format(d["url"], d["title"]) for d in result["docs"])
         blocks.append({"type": "context", "elements": [{"type": "mrkdwn", "text": "Docs: " + links}]})
-    tag = "ranked by Gemini" if result.get("source") != "fallback" else "offline ranker"
-    blocks.append({"type": "context", "elements": [{"type": "mrkdwn", "text": "_" + tag + "_"}]})
     return blocks
 
 

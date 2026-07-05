@@ -59,6 +59,17 @@ def rank_experts(query, people, docs, model=None):
         })
 
     experts.sort(key=lambda e: e["composite"], reverse=True)
+
+    # Several seeded profiles can map to the same real person (same slackId);
+    # keep only each person's best-matching profile so nobody appears twice.
+    seen, deduped = set(), []
+    for e in experts:
+        if e["slackId"] in seen:
+            continue
+        seen.add(e["slackId"])
+        deduped.append(e)
+    experts = deduped
+
     for i, e in enumerate(experts):
         e["rank"] = "primary" if i == 0 else "backup" if i == 1 else "related"
 
