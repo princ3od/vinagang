@@ -42,16 +42,16 @@ NO_MATCH_EXPERTISE = int(os.environ.get("NO_MATCH_EXPERTISE", "50"))
 DIRECT_PROMPT = (
     "You are XpertFinder, a company assistant. No internal expert matched this question, "
     "so answer it directly, helpfully and concisely (2-4 sentences). If it needs "
-    "company-specific data you don't have, say so briefly.\n\nQuestion: {query}"
+    "company-specific data you don't have, say so briefly. Do not use em dashes.\n\nQuestion: {query}"
 )
 TONE_EMOJI = {"success": ":large_green_circle:", "warning": ":large_yellow_circle:", "danger": ":red_circle:"}
 FUNNY_INTROS = [
-    ":dart: Found your human — no manager relay, no 4-hop telephone game.",
-    ":detective: Case cracked. The git history sang like a canary.",
-    ":brain: The company brain has spoken:",
-    ":rocket: Skip the corporate group-chat archaeology. Meet:",
-    ":sparkles: Plot twist — you don't need a meeting for this one.",
-    ":satellite_antenna: Beaming you the one person who won't say 'not my area':",
+    "Found your human. No manager relay, no 4-hop telephone game.",
+    "Case cracked. The git history sang like a canary.",
+    "The company brain has spoken:",
+    "Skip the corporate group-chat archaeology. Meet:",
+    "Plot twist: you don't need a meeting for this one.",
+    "Beaming you the one person who won't say 'not my area':",
 ]
 
 app = App(token=os.environ["SLACK_BOT_TOKEN"])
@@ -91,7 +91,7 @@ def answer(query, progress=None):
             progress(step)
 
     # Retrieval: gbrain narrows the directory first (flagged, with fallback to all).
-    notify(":card_index_dividers: Querying data sources — projects, code, Jira, HR, docs, certs…")
+    notify("Querying data sources: projects, code, Jira, HR, docs, certs...")
     pool, retrieval = people, "all"
     if USE_GBRAIN:
         ids = gbrain_ids(query)
@@ -99,7 +99,7 @@ def answer(query, progress=None):
         if subset:
             pool, retrieval = subset, "gbrain"
 
-    notify(":brain: Ranking the best experts…")
+    notify("Ranking the best experts...")
     model, source = None, "gemini"
     try:
         model = call_gemini(query, pool, MODEL, os.environ.get("GEMINI_API_KEY"))
@@ -107,7 +107,7 @@ def answer(query, progress=None):
         source = "fallback"
         print("[ask] using local fallback:", e)
 
-    notify(":calendar: Checking who's available…")
+    notify("Checking who's available...")
     result = rank_experts(query, pool, docs, model)
     result["source"] = source
     result["retrieval"] = retrieval
@@ -115,7 +115,7 @@ def answer(query, progress=None):
     # No one knows this well enough -> answer directly, suggest nobody.
     best = max((e["expertise"] for e in result["experts"]), default=0)
     if best < NO_MATCH_EXPERTISE:
-        notify(":robot_face: No expert matched — drafting a direct answer…")
+        notify("No expert matched, drafting a direct answer...")
         result["experts"], result["docs"] = [], []
         try:
             result["direct_answer"] = generate_text(DIRECT_PROMPT.format(query=query), MODEL, os.environ.get("GEMINI_API_KEY"))
@@ -131,17 +131,17 @@ def blocks_for(query, result):
         ans = result.get("direct_answer") or "I couldn't find anyone for that."
         return [
             {"type": "section", "text": {"type": "mrkdwn", "text": "*You asked:* {}".format(query)}},
-            {"type": "section", "text": {"type": "mrkdwn", "text": ":robot_face: *No internal expert matched* — here's a direct answer:\n\n{}".format(ans)}},
+            {"type": "section", "text": {"type": "mrkdwn", "text": "*No internal expert matched.* Here's a direct answer:\n\n{}".format(ans)}},
         ]
 
     top = experts[0]
     av = top["availability"]
-    why = "\n".join("- *{}* — {}".format(r["source"], r["text"]) for r in top.get("rationale", []))
+    why = "\n".join("- *{}*: {}".format(r["source"], r["text"]) for r in top.get("rationale", []))
     blocks = [
         {"type": "section", "text": {"type": "mrkdwn", "text": "*You asked:* {}".format(query)}},
         {"type": "section", "text": {"type": "mrkdwn", "text": random.choice(FUNNY_INTROS)}},
         {"type": "section", "text": {"type": "mrkdwn", "text": (
-            "{} *{}* — {}\n{} · match *{}* ({} x {})".format(
+            "{} *{}*, {}\n{} · match *{}* ({} x {})".format(
                 TONE_EMOJI.get(av["tone"], ":white_circle:"), top["name"], top["role"],
                 av["label"], top["composite"], top["expertise"], top["factor"]))}},
     ]
@@ -149,7 +149,7 @@ def blocks_for(query, result):
         blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": why}})
     blocks.append({"type": "actions", "elements": [{
         "type": "button", "style": "primary",
-        "text": {"type": "plain_text", "text": ":raising_hand: Connect with me!", "emoji": True},
+        "text": {"type": "plain_text", "text": "Connect with " + top["name"].split()[0]},
         "action_id": "connect_expert",
         "value": json.dumps({"slackId": top["slackId"], "name": top["name"], "query": query}),
     }]})
@@ -165,7 +165,7 @@ def blocks_for(query, result):
 
 def loading_blocks(step):
     return [
-        {"type": "section", "text": {"type": "mrkdwn", "text": ":hourglass_flowing_sand: *XpertFinder is working…*"}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": "*XpertFinder is working...*"}},
         {"type": "context", "elements": [{"type": "mrkdwn", "text": step}]},
     ]
 
@@ -182,10 +182,12 @@ def handle_xpert(ack, client, respond, command):
     try:
         posted = client.chat_postMessage(
             channel=channel, text="XpertFinder is working…",
-            blocks=loading_blocks(":mag: Understanding your question…"))
-    except Exception as e:  # noqa: BLE001 — bot not in channel etc.: single ephemeral fallback
-        print("[xpert] can't post to channel, ephemeral fallback:", e)
-        respond(blocks=blocks_for(query, answer(query)), response_type="ephemeral")
+            blocks=loading_blocks("Understanding your question..."))
+    except Exception as e:  # noqa: BLE001 — bot not in the channel: response_url fallback (works anywhere)
+        print("[xpert] can't post to channel, response_url fallback:", e)
+        respond(blocks=loading_blocks("Searching data sources and checking availability..."), response_type="ephemeral")
+        result = answer(query)
+        respond(blocks=blocks_for(query, result), response_type="ephemeral", replace_original=True)
         return
     ts = posted["ts"]
 
@@ -196,14 +198,19 @@ def handle_xpert(ack, client, respond, command):
             print("[xpert] chat_update failed:", e)
 
     result = answer(query, progress=prog)
-    client.chat_update(channel=channel, ts=ts, text="XpertFinder", blocks=blocks_for(query, result))
+    # Remove the loading message, then post the answer as its own message.
+    try:
+        client.chat_delete(channel=channel, ts=ts)
+    except Exception as e:  # noqa: BLE001 — if delete fails, still post the answer below
+        print("[xpert] couldn't delete loading message:", e)
+    client.chat_postMessage(channel=channel, text="XpertFinder", blocks=blocks_for(query, result))
 
 
 def default_intro(requester, name, query):
     first = name.split()[0] if name else "there"
     return (
-        "Hi {} :wave: <@{}> here — I could use your help with this:\n"
-        "> {}\n\nDo you have ~15 minutes? (Found you via XpertFinder — no manager relay needed.)"
+        "Hi {}, <@{}> here. I could use your help with this:\n"
+        "> {}\n\nDo you have ~15 minutes? (Found you via XpertFinder, no manager relay needed.)"
     ).format(first, requester, query)
 
 
@@ -221,7 +228,7 @@ def intro_view(draft, meta):
              "label": {"type": "plain_text", "text": "Message (edit before sending)"},
              "element": {"type": "plain_text_input", "action_id": "message", "multiline": True, "initial_value": draft}},
             {"type": "actions", "elements": [
-                {"type": "button", "action_id": "refine_draft", "text": {"type": "plain_text", "text": ":sparkles: Refine with AI"}}
+                {"type": "button", "action_id": "refine_draft", "text": {"type": "plain_text", "text": "Refine with AI"}}
             ]},
         ],
     }
@@ -254,7 +261,7 @@ def handle_refine(ack, body, client):
     prompt = (
         "Rewrite this short outreach message to a colleague named {} about the question below. "
         "Keep it friendly, concise, professional, under 45 words. First person, as the sender. "
-        "Do NOT add a signature, sign-off, or placeholders like [Your Name]. "
+        "Do NOT add a signature, sign-off, or placeholders like [Your Name]. Do not use em dashes. "
         "Return ONLY the message text, no preamble.\n\n"
         "Question: {}\n\nCurrent message:\n{}"
     ).format(meta["name"], meta["query"], current)
