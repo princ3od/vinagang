@@ -1,0 +1,12 @@
+{
+  "name": "xpertfinder",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "XpertFinder — cut the manager relay. Ask a question, get the exact person who can answer, intro them directly.",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.mjs",
+    "dev": "node --watch --env-file-if-exists=.env server.mjs"
+  }
+}

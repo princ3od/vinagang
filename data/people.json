@@ -1,0 +1,94 @@
+[
+  {
+    "id": "sarah-chen",
+    "name": "Sarah Chen",
+    "email": "sarah.chen@vinagang.io",
+    "slackId": "U01SARAH",
+    "role": "SAP Basis Architect",
+    "dept": "Platform Engineering",
+    "skills": ["SAP Basis", "SAP on Azure", "Azure migration", "SAP HANA", "Terraform"],
+    "projects": [
+      { "name": "Contoso SAP-on-Azure migration", "role": "Lead", "year": 2024, "outcome": "Migrated 12 SAP systems to Azure, 30% infra cost cut" }
+    ],
+    "codeowners": [{ "repo": "azure-sap-landingzone", "languages": ["Terraform", "Bicep"] }],
+    "jira": [{ "component": "SAP / Azure", "resolved": 24 }],
+    "certs": [
+      { "name": "Azure Solutions Architect Expert", "issuer": "Microsoft", "year": 2023 },
+      { "name": "SAP HANA Technology", "issuer": "SAP", "year": 2022 }
+    ],
+    "availability": { "status": "available", "label": "Available now", "freeAt": null }
+  },
+  {
+    "id": "marcus-rivera",
+    "name": "Marcus Rivera",
+    "email": "marcus.rivera@vinagang.io",
+    "slackId": "U01MARCUS",
+    "role": "Cloud Infrastructure Lead",
+    "dept": "Platform Engineering",
+    "skills": ["Azure landing zones", "Azure migration", "Networking", "Terraform", "Bicep"],
+    "projects": [
+      { "name": "Azure landing zone rollout", "role": "Lead", "year": 2023, "outcome": "Standardized landing zones for 40 teams" },
+      { "name": "Northwind SAP migration", "role": "Co-lead", "year": 2023, "outcome": "Lifted SAP ECC to Azure" }
+    ],
+    "codeowners": [{ "repo": "azure-landing-zone", "languages": ["Terraform"] }],
+    "jira": [{ "component": "Azure Platform", "resolved": 31 }],
+    "certs": [{ "name": "Azure Solutions Architect Expert", "issuer": "Microsoft", "year": 2022 }],
+    "availability": { "status": "soon", "label": "Free after 2:00 PM", "freeAt": "2:00 PM" }
+  },
+  {
+    "id": "priya-nair",
+    "name": "Priya Nair",
+    "email": "priya.nair@vinagang.io",
+    "slackId": "U01PRIYA",
+    "role": "SAP Functional Consultant",
+    "dept": "ERP",
+    "skills": ["SAP FI/CO", "SAP functional", "SAP S/4HANA", "Business process"],
+    "projects": [{ "name": "S/4HANA finance rollout", "role": "Consultant", "year": 2024, "outcome": "Go-live across 6 entities" }],
+    "codeowners": [],
+    "jira": [{ "component": "SAP Functional", "resolved": 18 }],
+    "certs": [{ "name": "SAP S/4HANA Finance", "issuer": "SAP", "year": 2023 }],
+    "availability": { "status": "busy", "label": "In a meeting until 4:30 PM", "freeAt": "4:30 PM" }
+  },
+  {
+    "id": "tomas-fischer",
+    "name": "Tomás Fischer",
+    "email": "tomas.fischer@vinagang.io",
+    "slackId": "U01TOMAS",
+    "role": "Site Reliability Engineer",
+    "dept": "Platform Engineering",
+    "skills": ["Kubernetes", "Cost optimization", "FinOps", "Prometheus", "Autoscaling"],
+    "projects": [{ "name": "K8s cost reduction program", "role": "Lead", "year": 2024, "outcome": "Cut cluster spend 38%" }],
+    "codeowners": [{ "repo": "k8s-platform", "languages": ["Go", "Helm"] }],
+    "jira": [{ "component": "Kubernetes", "resolved": 27 }],
+    "certs": [{ "name": "Certified Kubernetes Administrator", "issuer": "CNCF", "year": 2023 }],
+    "availability": { "status": "available", "label": "Available now", "freeAt": null }
+  },
+  {
+    "id": "aiko-tanaka",
+    "name": "Aiko Tanaka",
+    "email": "aiko.tanaka@vinagang.io",
+    "slackId": "U01AIKO",
+    "role": "Data Governance Lead",
+    "dept": "Legal & Compliance",
+    "skills": ["GDPR", "Data retention", "Privacy", "Data classification"],
+    "projects": [{ "name": "Global data-retention program", "role": "Lead", "year": 2024, "outcome": "Retention policy across 22 systems" }],
+    "codeowners": [{ "repo": "data-retention-policy", "languages": ["Markdown", "Python"] }],
+    "jira": [{ "component": "Privacy / GDPR", "resolved": 15 }],
+    "certs": [{ "name": "CIPP/E", "issuer": "IAPP", "year": 2022 }],
+    "availability": { "status": "available", "label": "Available now", "freeAt": null }
+  },
+  {
+    "id": "ben-osei",
+    "name": "Ben Osei",
+    "email": "ben.osei@vinagang.io",
+    "slackId": "U01BEN",
+    "role": "Senior Backend Engineer",
+    "dept": "Payments",
+    "skills": ["Payments", "Node.js", "Stripe", "PostgreSQL", "Idempotency"],
+    "projects": [{ "name": "Payments service rebuild", "role": "Lead", "year": 2023, "outcome": "99.99% payment success rate" }],
+    "codeowners": [{ "repo": "payments-service", "languages": ["TypeScript"] }],
+    "jira": [{ "component": "Payments", "resolved": 41 }],
+    "certs": [],
+    "availability": { "status": "soon", "label": "Free after 11:30 AM", "freeAt": "11:30 AM" }
+  }
+]

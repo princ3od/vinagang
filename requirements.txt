@@ -1,0 +1,2 @@
+slack_bolt>=1.18
+websocket-client>=1.6

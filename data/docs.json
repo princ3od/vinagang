@@ -1,0 +1,8 @@
+[
+  { "title": "SAP on Azure — migration playbook", "source": "Confluence", "tags": ["sap", "azure", "migration"], "url": "https://confluence.vinagang.io/sap-azure-playbook" },
+  { "title": "Contoso landing-zone runbook", "source": "SharePoint", "tags": ["azure", "landing", "zone", "sap", "runbook"], "url": "https://sharepoint.vinagang.io/contoso-runbook" },
+  { "title": "PROJ-1123 · SAP S/4HANA to Azure epic", "source": "Jira", "tags": ["sap", "azure", "s4hana", "migration"], "url": "https://jira.vinagang.io/browse/PROJ-1123" },
+  { "title": "Kubernetes cost tuning guide", "source": "Confluence", "tags": ["kubernetes", "cost", "finops", "autoscaling"], "url": "https://confluence.vinagang.io/k8s-cost" },
+  { "title": "GDPR data-retention policy", "source": "SharePoint", "tags": ["gdpr", "data", "retention", "privacy"], "url": "https://sharepoint.vinagang.io/gdpr-retention" },
+  { "title": "Payments service architecture", "source": "Confluence", "tags": ["payments", "stripe", "architecture"], "url": "https://confluence.vinagang.io/payments-arch" }
+]

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>XpertFinder — Company Brain for expertise</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="head">
+        <div class="logo"><span class="mark">XF</span></div>
+        <div>
+          <h1>XpertFinder</h1>
+          <p class="sub">Skip the manager relay — go straight to who actually knows.</p>
+        </div>
+      </header>
+
+      <form id="ask-form" class="searchbar" autocomplete="off">
+        <input id="query" name="query" type="text" placeholder="Ask anything — e.g. I need help deploying SAP to Azure" value="I need help deploying SAP to Azure" />
+        <button id="ask-btn" type="submit">Ask</button>
+      </form>
+
+      <div class="chips" id="suggestions">
+        <span class="chips-label">Try:</span>
+        <button class="chip" type="button">I need help deploying SAP to Azure</button>
+        <button class="chip" type="button">Who owns the payments service?</button>
+        <button class="chip" type="button">Kubernetes cost tuning</button>
+        <button class="chip" type="button">GDPR data-retention rules</button>
+      </div>
+
+      <section id="results" class="results" hidden>
+        <div class="meta-row">
+          <div class="intent" id="intent"></div>
+          <span class="badge-source" id="source-badge"></span>
+        </div>
+        <p class="section-label">Searched 6 sources</p>
+        <div class="sources" id="sources"></div>
+        <p class="section-label">Top experts</p>
+        <div id="experts"></div>
+        <p class="section-label" id="docs-label" hidden>Related documentation</p>
+        <div id="docs"></div>
+      </section>
+
+      <div id="toast" class="toast" hidden></div>
+    </main>
+    <script src="/app.js"></script>
+  </body>
+</html>
