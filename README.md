@@ -4,16 +4,9 @@
 
 Built for c0mpiled pt 3 — YC RFS challenge #1 (*Company Brain — structuring internal knowledge for AI execution*). LLM: **Gemini**.
 
-## Two surfaces (same brain)
+The surface is a **Slack bot** (Python + Slack Bolt, Socket Mode — no public URL / ngrok). That's the whole point: the intro happens where the conversation already lives, so there's no separate app to open and no manager to route through.
 
-| Surface | File | Status |
-|---|---|---|
-| **Slack bot** (primary) | `bot.py` | Python + Slack Bolt, **Socket Mode** (no public URL / ngrok) |
-| Web app (optional backup demo) | `server.mjs` | Zero-dep Node, same data + ranking |
-
-Both share `data/`, the same availability ranking, and the same Gemini prompt. Pick the Slack bot for the demo — it *is* the "cut the middleman" story: the intro happens where the conversation already lives.
-
-## Slack bot — quickstart
+## Quickstart
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
@@ -57,7 +50,7 @@ Gemini judges expertise; code judges availability. The multiplier is determinist
 | `gemini_client.py` | Gemini request builder + call (stdlib urllib, no dep) |
 | `data/people.json` | 6 seeded experts across all 6 signal types |
 | `data/docs.json` | Seeded related documentation |
-| `server.mjs`, `public/`, `lib/` | Optional Node web-app backup surface |
+| `slack-manifest.yaml` | One-paste Slack app config |
 
 ## Seeded scenarios (bulletproof for the demo)
 
