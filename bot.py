@@ -37,6 +37,12 @@ docs = json.loads((ROOT / "data" / "docs.json").read_text())
 MODEL = os.environ.get("MODEL", "gemini-2.5-flash")
 GBRAIN_BIN = os.environ.get("GBRAIN_BIN", os.path.expanduser("~/.bun/bin/gbrain"))
 USE_GBRAIN = os.environ.get("USE_GBRAIN", "").lower() in ("1", "true", "yes")
+NO_MATCH_EXPERTISE = int(os.environ.get("NO_MATCH_EXPERTISE", "50"))
+DIRECT_PROMPT = (
+    "You are XpertFinder, a company assistant. No internal expert matched this question, "
+    "so answer it directly, helpfully and concisely (2-4 sentences). If it needs "
+    "company-specific data you don't have, say so briefly.\n\nQuestion: {query}"
+)
 TONE_EMOJI = {"success": ":large_green_circle:", "warning": ":large_yellow_circle:", "danger": ":red_circle:"}
 
 app = App(token=os.environ["SLACK_BOT_TOKEN"])
@@ -88,13 +94,27 @@ def answer(query):
     result = rank_experts(query, pool, docs, model)
     result["source"] = source
     result["retrieval"] = retrieval
+
+    # No one knows this well enough -> answer directly, suggest nobody.
+    best = max((e["expertise"] for e in result["experts"]), default=0)
+    if best < NO_MATCH_EXPERTISE:
+        result["experts"], result["docs"] = [], []
+        try:
+            result["direct_answer"] = generate_text(DIRECT_PROMPT.format(query=query), MODEL, os.environ.get("GEMINI_API_KEY"))
+        except Exception as e:  # noqa: BLE001
+            print("[direct] failed:", e)
+            result["direct_answer"] = "No internal expert matched, and I couldn't generate a direct answer right now."
     return result
 
 
 def blocks_for(query, result):
     experts = result["experts"]
     if not experts:
-        return [{"type": "section", "text": {"type": "mrkdwn", "text": "I couldn't find anyone for that."}}]
+        ans = result.get("direct_answer") or "I couldn't find anyone for that."
+        return [
+            {"type": "section", "text": {"type": "mrkdwn", "text": "*You asked:* {}".format(query)}},
+            {"type": "section", "text": {"type": "mrkdwn", "text": ":robot_face: *No internal expert matched* — here's a direct answer:\n\n{}".format(ans)}},
+        ]
 
     top = experts[0]
     av = top["availability"]
