@@ -44,7 +44,12 @@ def call_gemini(query, people, model, api_key):
     body = json.dumps({
         "systemInstruction": {"parts": [{"text": system}]},
         "contents": [{"role": "user", "parts": [{"text": user}]}],
-        "generationConfig": {"responseMimeType": "application/json", "maxOutputTokens": 1600, "temperature": 0.2},
+        "generationConfig": {
+            "responseMimeType": "application/json",
+            "maxOutputTokens": 2048,
+            "temperature": 0.2,
+            "thinkingConfig": {"thinkingBudget": 0},  # 2.5-flash thinks by default and eats the token budget; off for this task
+        },
     }).encode()
     req = urllib.request.Request(
         url, data=body, method="POST",
