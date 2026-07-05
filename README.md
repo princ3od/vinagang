@@ -26,14 +26,14 @@ Then in Slack: `/xpert I need help deploying SAP to Azure` → the bot replies w
 
 Runs with **no Gemini key** too (local fallback ranker, shown as "offline ranker").
 
-### One-time Slack app setup (~10 min, no ngrok)
+### One-time Slack app setup (~5 min, no ngrok)
 
-1. **api.slack.com/apps → Create New App → From scratch.**
-2. **Socket Mode → enable.** Generate an **App-Level Token** with scope `connections:write` → `SLACK_APP_TOKEN` (`xapp-...`).
-3. **OAuth & Permissions → Bot Token Scopes:** `commands`, `chat:write`, `mpim:write`, `im:write`. Install to workspace → **Bot User OAuth Token** → `SLACK_BOT_TOKEN` (`xoxb-...`).
-4. **Slash Commands → Create** `/xpert`. With Socket Mode on, the Request URL is ignored — put any placeholder.
-5. **Interactivity & Shortcuts → toggle on** (needed for the button; Socket Mode delivers it, no URL).
-6. **Make the direct-DM magic real:** set each expert's `slackId` in `data/people.json` to a **real workspace user id** (your demo teammates). Otherwise the bot falls back to DMing you the intro (demo mode).
+**Fast path — from the manifest:** api.slack.com/apps → Create New App → **From an app manifest** → pick your workspace → paste [`slack-manifest.yaml`](slack-manifest.yaml). That pre-configures the bot, `/xpert`, scopes, Socket Mode, and interactivity in one shot. Then:
+
+1. **Basic Information → App-Level Tokens → Generate**, scope `connections:write` → `SLACK_APP_TOKEN` (`xapp-...`).
+2. **Install to Workspace → Bot User OAuth Token** → `SLACK_BOT_TOKEN` (`xoxb-...`).
+3. Put both in `.env`.
+4. **Make the direct-DM magic real:** set each expert's `slackId` in `data/people.json` to a **real workspace user id** (your demo teammates). Otherwise the bot falls back to DMing you the intro (demo mode).
 
 ## How it works
 
