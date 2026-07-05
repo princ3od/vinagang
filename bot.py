@@ -5,6 +5,7 @@
 import os
 import re
 import json
+import random
 import subprocess
 from pathlib import Path
 
@@ -44,6 +45,14 @@ DIRECT_PROMPT = (
     "company-specific data you don't have, say so briefly.\n\nQuestion: {query}"
 )
 TONE_EMOJI = {"success": ":large_green_circle:", "warning": ":large_yellow_circle:", "danger": ":red_circle:"}
+FUNNY_INTROS = [
+    ":dart: Found your human — no manager relay, no 4-hop telephone game.",
+    ":detective: Case cracked. The git history sang like a canary.",
+    ":brain: The company brain has spoken:",
+    ":rocket: Skip the corporate group-chat archaeology. Meet:",
+    ":sparkles: Plot twist — you don't need a meeting for this one.",
+    ":satellite_antenna: Beaming you the one person who won't say 'not my area':",
+]
 
 app = App(token=os.environ["SLACK_BOT_TOKEN"])
 
@@ -76,8 +85,13 @@ def gbrain_ids(query, k=8):
     return ranked[:k] or None
 
 
-def answer(query):
+def answer(query, progress=None):
+    def notify(step):
+        if progress:
+            progress(step)
+
     # Retrieval: gbrain narrows the directory first (flagged, with fallback to all).
+    notify(":card_index_dividers: Querying data sources — projects, code, Jira, HR, docs, certs…")
     pool, retrieval = people, "all"
     if USE_GBRAIN:
         ids = gbrain_ids(query)
@@ -85,12 +99,15 @@ def answer(query):
         if subset:
             pool, retrieval = subset, "gbrain"
 
+    notify(":brain: Ranking the best experts…")
     model, source = None, "gemini"
     try:
         model = call_gemini(query, pool, MODEL, os.environ.get("GEMINI_API_KEY"))
     except Exception as e:  # noqa: BLE001 — any failure falls back to the local ranker
         source = "fallback"
         print("[ask] using local fallback:", e)
+
+    notify(":calendar: Checking who's available…")
     result = rank_experts(query, pool, docs, model)
     result["source"] = source
     result["retrieval"] = retrieval
@@ -98,6 +115,7 @@ def answer(query):
     # No one knows this well enough -> answer directly, suggest nobody.
     best = max((e["expertise"] for e in result["experts"]), default=0)
     if best < NO_MATCH_EXPERTISE:
+        notify(":robot_face: No expert matched — drafting a direct answer…")
         result["experts"], result["docs"] = [], []
         try:
             result["direct_answer"] = generate_text(DIRECT_PROMPT.format(query=query), MODEL, os.environ.get("GEMINI_API_KEY"))
@@ -121,6 +139,7 @@ def blocks_for(query, result):
     why = "\n".join("- *{}* — {}".format(r["source"], r["text"]) for r in top.get("rationale", []))
     blocks = [
         {"type": "section", "text": {"type": "mrkdwn", "text": "*You asked:* {}".format(query)}},
+        {"type": "section", "text": {"type": "mrkdwn", "text": random.choice(FUNNY_INTROS)}},
         {"type": "section", "text": {"type": "mrkdwn", "text": (
             "{} *{}* — {}\n{} · match *{}* ({} x {})".format(
                 TONE_EMOJI.get(av["tone"], ":white_circle:"), top["name"], top["role"],
@@ -130,7 +149,7 @@ def blocks_for(query, result):
         blocks.append({"type": "section", "text": {"type": "mrkdwn", "text": why}})
     blocks.append({"type": "actions", "elements": [{
         "type": "button", "style": "primary",
-        "text": {"type": "plain_text", "text": "Connect me with " + top["name"].split()[0]},
+        "text": {"type": "plain_text", "text": ":raising_hand: Connect with me!", "emoji": True},
         "action_id": "connect_expert",
         "value": json.dumps({"slackId": top["slackId"], "name": top["name"], "query": query}),
     }]})
@@ -144,14 +163,40 @@ def blocks_for(query, result):
     return blocks
 
 
+def loading_blocks(step):
+    return [
+        {"type": "section", "text": {"type": "mrkdwn", "text": ":hourglass_flowing_sand: *XpertFinder is working…*"}},
+        {"type": "context", "elements": [{"type": "mrkdwn", "text": step}]},
+    ]
+
+
 @app.command("/xpert")
-def handle_xpert(ack, respond, command):
+def handle_xpert(ack, client, respond, command):
     ack()
     query = (command.get("text") or "").strip()
     if not query:
         respond("Ask me something, e.g. `/xpert how do I deploy SAP to Azure?`")
         return
-    respond(blocks=blocks_for(query, answer(query)), response_type="ephemeral")
+    channel = command["channel_id"]
+    # Post ONE message, then edit it in place through the stages and into the result.
+    try:
+        posted = client.chat_postMessage(
+            channel=channel, text="XpertFinder is working…",
+            blocks=loading_blocks(":mag: Understanding your question…"))
+    except Exception as e:  # noqa: BLE001 — bot not in channel etc.: single ephemeral fallback
+        print("[xpert] can't post to channel, ephemeral fallback:", e)
+        respond(blocks=blocks_for(query, answer(query)), response_type="ephemeral")
+        return
+    ts = posted["ts"]
+
+    def prog(step):
+        try:
+            client.chat_update(channel=channel, ts=ts, text="Working…", blocks=loading_blocks(step))
+        except Exception as e:  # noqa: BLE001 — best-effort progress, never fatal
+            print("[xpert] chat_update failed:", e)
+
+    result = answer(query, progress=prog)
+    client.chat_update(channel=channel, ts=ts, text="XpertFinder", blocks=blocks_for(query, result))
 
 
 def default_intro(requester, name, query):
