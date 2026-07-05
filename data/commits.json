@@ -1,0 +1,98 @@
+[
+  {
+    "id": "a3f9d12e4b7c8091a2e3f456d7890abc1234def5",
+    "name": "feat(sap-migration): automate pre-flight checks for S/4HANA cutover",
+    "summary": "Adds a Python script that validates SAP transport request statuses, checks RFC connectivity to Azure targets, and generates a pre-flight report before any S/4HANA cutover window. Reduces manual checklist time by ~2 hours per migration.",
+    "assignee": "Sarah Chen",
+    "reviewers": ["Marcus Rivera", "Priya Nair"],
+    "url": "https://github.com/vinagang/azure-sap-landingzone/commit/a3f9d12e4b7c8091a2e3f456d7890abc1234def5",
+    "repo": "azure-sap-landingzone",
+    "branch": "feat/s4hana-preflight-checks",
+    "status": "merged",
+    "createdAt": "2026-06-28T09:14:00Z"
+  },
+  {
+    "id": "b72c1a0f3e5d8924b1c2d3e4f5a6b7c8d9e0f1a2",
+    "name": "fix(landing-zone): correct NSG rules blocking SAP HANA system replication port 40015",
+    "summary": "NSG rules in the Contoso landing zone were silently dropping SAP HANA system replication traffic on port 40015. This commit adds the missing inbound rule and updates the Terraform module variable defaults to include all required HANA ports.",
+    "assignee": "Marcus Rivera",
+    "reviewers": ["Sarah Chen", "Tomás Fischer"],
+    "url": "https://github.com/vinagang/azure-landing-zone/commit/b72c1a0f3e5d8924b1c2d3e4f5a6b7c8d9e0f1a2",
+    "repo": "azure-landing-zone",
+    "branch": "fix/hana-nsg-port-40015",
+    "status": "merged",
+    "createdAt": "2026-06-30T14:22:00Z"
+  },
+  {
+    "id": "c91e2b3d4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c",
+    "name": "chore(k8s-platform): upgrade cluster autoscaler to v1.29.2 and tune scale-down thresholds",
+    "summary": "Bumps cluster autoscaler from v1.28.1 to v1.29.2 to pick up the memory-pressure eviction fix. Also tightens scale-down utilization threshold from 50% to 40% based on FinOps review, projected to save ~€3 200/month across prod clusters.",
+    "assignee": "Tomás Fischer",
+    "reviewers": ["Marcus Rivera"],
+    "url": "https://github.com/vinagang/k8s-platform/commit/c91e2b3d4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c",
+    "repo": "k8s-platform",
+    "branch": "chore/autoscaler-v1.29.2",
+    "status": "merged",
+    "createdAt": "2026-07-01T08:55:00Z"
+  },
+  {
+    "id": "d04f3c4e5b6a7d8e9f0a1b2c3d4e5f6a7b8c9d0e",
+    "name": "feat(data-retention): add automated purge job for GDPR Article 17 right-to-erasure requests",
+    "summary": "Implements a scheduled Python job that reads erasure requests from the compliance queue, identifies all matching records across 8 data stores, hard-deletes PII, and writes an audit trail to the immutable compliance log. Satisfies the 30-day erasure SLA.",
+    "assignee": "Aiko Tanaka",
+    "reviewers": ["Ben Osei", "Priya Nair"],
+    "url": "https://github.com/vinagang/data-retention-policy/commit/d04f3c4e5b6a7d8e9f0a1b2c3d4e5f6a7b8c9d0e",
+    "repo": "data-retention-policy",
+    "branch": "feat/gdpr-erasure-job",
+    "status": "open",
+    "createdAt": "2026-07-03T11:40:00Z"
+  },
+  {
+    "id": "e15a4d5f6c7b8e9f0a1b2c3d4e5f6a7b8c9d0e1f",
+    "name": "refactor(payments-service): replace synchronous Stripe webhook handler with idempotent queue consumer",
+    "summary": "Moves Stripe webhook processing off the HTTP request path into a durable BullMQ queue. Each event is deduplicated by Stripe event ID, processed at-least-once, and acknowledged only after the PostgreSQL write commits. Eliminates the 0.6% duplicate-charge rate seen in the June incident.",
+    "assignee": "Ben Osei",
+    "reviewers": ["Sarah Chen", "Tomás Fischer"],
+    "url": "https://github.com/vinagang/payments-service/commit/e15a4d5f6c7b8e9f0a1b2c3d4e5f6a7b8c9d0e1f",
+    "repo": "payments-service",
+    "branch": "refactor/idempotent-webhook-consumer",
+    "status": "merged",
+    "createdAt": "2026-07-02T16:05:00Z"
+  },
+  {
+    "id": "f26b5e6a7d8c9f0a1b2c3d4e5f6a7b8c9d0e1f2a",
+    "name": "docs(sap-azure): update runbook with HANA backup validation steps post-migration",
+    "summary": "Extends the Contoso SAP-on-Azure runbook with step-by-step instructions for validating HANA backup schedules, verifying Azure Backup vault connectivity, and running a test restore to a sandboxed instance after each migration wave.",
+    "assignee": "Priya Nair",
+    "reviewers": ["Sarah Chen"],
+    "url": "https://github.com/vinagang/azure-sap-landingzone/commit/f26b5e6a7d8c9f0a1b2c3d4e5f6a7b8c9d0e1f2a",
+    "repo": "azure-sap-landingzone",
+    "branch": "docs/runbook-hana-backup-validation",
+    "status": "open",
+    "createdAt": "2026-07-04T10:30:00Z"
+  },
+  {
+    "id": "a37c6f7b8e9d0a1b2c3d4e5f6a7b8c9d0e1f2a3b",
+    "name": "perf(k8s-platform): enable VPA for payments-service pods to right-size memory requests",
+    "summary": "Enables Vertical Pod Autoscaler in recommendation mode for payments-service. Based on 30-day P95 usage, reduces memory requests from 2 Gi to 1.1 Gi per pod, freeing ~18 Gi of cluster capacity and cutting node-pool cost by an estimated 12%.",
+    "assignee": "Tomás Fischer",
+    "reviewers": ["Ben Osei", "Marcus Rivera"],
+    "url": "https://github.com/vinagang/k8s-platform/commit/a37c6f7b8e9d0a1b2c3d4e5f6a7b8c9d0e1f2a3b",
+    "repo": "k8s-platform",
+    "branch": "perf/vpa-payments-service",
+    "status": "merged",
+    "createdAt": "2026-07-04T15:18:00Z"
+  },
+  {
+    "id": "b48d7a8c9f0e1a2b3c4d5e6f7a8b9c0d1e2f3a4b",
+    "name": "fix(payments-service): handle Stripe charge.refunded event idempotently to prevent double-credit",
+    "summary": "A race condition between the webhook consumer and the reconciliation cron was issuing duplicate refunds for the same Stripe charge ID. This commit adds a distributed lock (Redis SETNX) around refund processing and unit tests covering the concurrent-request scenario.",
+    "assignee": "Ben Osei",
+    "reviewers": ["Aiko Tanaka", "Sarah Chen"],
+    "url": "https://github.com/vinagang/payments-service/commit/b48d7a8c9f0e1a2b3c4d5e6f7a8b9c0d1e2f3a4b",
+    "repo": "payments-service",
+    "branch": "fix/double-refund-race-condition",
+    "status": "merged",
+    "createdAt": "2026-07-05T07:42:00Z"
+  }
+]

@@ -1,0 +1,212 @@
+[
+  {
+    "id": "D-2026-001",
+    "channel": "#sap-azure-migration",
+    "summary": "Team investigates why HANA system replication is silently failing after the Contoso landing-zone NSG update, identifies the missing port 40015 rule, and agrees on a hotfix + runbook change.",
+    "participants": ["Sarah Chen", "Marcus Rivera", "Priya Nair"],
+    "createdAt": "2026-06-30T13:00:00Z",
+    "messages": [
+      {
+        "timestamp": "2026-06-30T13:02:11Z",
+        "author": "Sarah Chen",
+        "text": "Hey team — HANA system replication between the primary and secondary nodes in the Contoso prod environment just went red. HSR status shows 'CONNECTION TIMEOUT'. Has anyone touched the NSG recently?"
+      },
+      {
+        "timestamp": "2026-06-30T13:05:44Z",
+        "author": "Marcus Rivera",
+        "text": "Yeah, I pushed a landing-zone NSG update this morning as part of the hardening sprint. Let me pull the diff... okay, I see the problem. I forgot to include port 40015 (HANA system replication). The template only had 3xx and 80xx ranges."
+      },
+      {
+        "timestamp": "2026-06-30T13:07:22Z",
+        "author": "Sarah Chen",
+        "text": "That would do it. Port 40015 is critical for log shipping. Can you open a hotfix PR? I'll approve ASAP. Also let's make sure 40001–40006 are in there for multi-tenant."
+      },
+      {
+        "timestamp": "2026-06-30T13:09:58Z",
+        "author": "Marcus Rivera",
+        "text": "On it. PR is up: fix/hana-nsg-port-40015. I've added the full 40000–40099 range to be safe. Also updated the Terraform variable description so it's clear these are required HANA ports, not optional."
+      },
+      {
+        "timestamp": "2026-06-30T13:15:03Z",
+        "author": "Priya Nair",
+        "text": "While you're in there — can we also capture this in the runbook? We nearly hit this same issue in the Northwind migration last year. A pre-cutover port-check step would catch it before go-live."
+      },
+      {
+        "timestamp": "2026-06-30T13:18:30Z",
+        "author": "Sarah Chen",
+        "text": "Great idea, Priya. I'll open a docs PR right after merging this fix. Marcus, approved and merged. Replication should recover within a few minutes once Terraform applies."
+      },
+      {
+        "timestamp": "2026-06-30T13:31:07Z",
+        "author": "Marcus Rivera",
+        "text": "Apply complete. HSR status is back to ACTIVE. :white_check_mark: Thanks for the quick eyes, Sarah."
+      }
+    ]
+  },
+  {
+    "id": "D-2026-002",
+    "channel": "#finops-k8s",
+    "summary": "Tomás shares FinOps review findings showing the payments-service pods are massively over-provisioned on memory, proposes enabling VPA, and gets buy-in from Ben and Marcus before raising a PR.",
+    "participants": ["Tomás Fischer", "Ben Osei", "Marcus Rivera"],
+    "createdAt": "2026-07-03T10:00:00Z",
+    "messages": [
+      {
+        "timestamp": "2026-07-03T10:02:45Z",
+        "author": "Tomás Fischer",
+        "text": "Morning all. Just finished the monthly FinOps cluster audit. Biggest finding: payments-service pods have memory requests set at 2 Gi, but P95 actual usage over the last 30 days is only 980 Mi. We're basically paying for a full GiB of RAM per pod that's never touched."
+      },
+      {
+        "timestamp": "2026-07-03T10:06:13Z",
+        "author": "Ben Osei",
+        "text": "That 2 Gi number is from when we were loading the full Stripe event catalog into memory on startup. We refactored that out in April — looks like nobody updated the Helm values. What's the impact?"
+      },
+      {
+        "timestamp": "2026-07-03T10:08:57Z",
+        "author": "Tomás Fischer",
+        "text": "About €3 200/month across prod clusters if we right-size to 1.1 Gi (P95 + 15% headroom). I'd also like to enable VPA in recommendation mode first so we have data-backed sizing before we commit. Marcus, any objection from platform side?"
+      },
+      {
+        "timestamp": "2026-07-03T10:11:22Z",
+        "author": "Marcus Rivera",
+        "text": "No objection. VPA recommendation mode is read-only, so there's no risk of surprise pod restarts. Just make sure the VPA object targets the right deployment selector — we had a mis-targeting incident on the analytics service last quarter."
+      },
+      {
+        "timestamp": "2026-07-03T10:14:08Z",
+        "author": "Ben Osei",
+        "text": "Fair warning. Tomás, can you share the VPA manifest before merging so I can double-check the selector? I'll also update the Helm defaults for payments-service memory in the same PR if you want."
+      },
+      {
+        "timestamp": "2026-07-03T10:16:50Z",
+        "author": "Tomás Fischer",
+        "text": "Perfect, let's bundle it. I'll have a draft PR up before EOD — perf/vpa-payments-service. I'll tag both of you for review."
+      }
+    ]
+  },
+  {
+    "id": "D-2026-003",
+    "channel": "#compliance-gdpr",
+    "summary": "Aiko walks the team through the new GDPR Article 17 erasure job design, Ben flags a potential data-store gap (Redis cache), and Priya confirms the 30-day SLA requirement so the team can scope the MVP correctly.",
+    "participants": ["Aiko Tanaka", "Ben Osei", "Priya Nair"],
+    "createdAt": "2026-07-03T14:30:00Z",
+    "messages": [
+      {
+        "timestamp": "2026-07-03T14:31:00Z",
+        "author": "Aiko Tanaka",
+        "text": "Hi everyone. I'm kicking off the GDPR Article 17 erasure automation sprint this week. The job needs to find all PII for a given customer ID across our data stores, hard-delete it, and write an audit record. Current scope: PostgreSQL (users + orders), S3 (uploaded documents), and Elasticsearch (search index). Does that sound complete to you both?"
+      },
+      {
+        "timestamp": "2026-07-03T14:35:22Z",
+        "author": "Ben Osei",
+        "text": "Almost. Don't forget the Redis session cache — we store email and display name there keyed on session token. TTL is 24 hours but a request could theoretically hit within that window. Might need a targeted SCAN + DEL or just flush on erasure."
+      },
+      {
+        "timestamp": "2026-07-03T14:38:45Z",
+        "author": "Aiko Tanaka",
+        "text": "Good catch, Ben. I'll add Redis to the scope. For the audit trail — I'm planning to write to an append-only Azure Blob container with immutability policy enabled, so it's tamper-evident. Does legal need anything else in the audit record beyond customer ID, timestamp, and list of stores touched?"
+      },
+      {
+        "timestamp": "2026-07-03T14:42:10Z",
+        "author": "Priya Nair",
+        "text": "Legal also wants the request source (e.g. portal self-service vs DPO manual request) and the initiating operator's email. That's the minimum for our DPA responses. Also confirming: the 30-day SLA clock starts from the verified request timestamp, not from when we queue the job."
+      },
+      {
+        "timestamp": "2026-07-03T14:45:33Z",
+        "author": "Aiko Tanaka",
+        "text": "Noted on both. I'll add request_source and operator_email to the audit schema. And I'll make sure we record the verified timestamp from the compliance queue message, not the job execution time. I'll share the design doc for review before I open the PR."
+      },
+      {
+        "timestamp": "2026-07-03T14:47:01Z",
+        "author": "Ben Osei",
+        "text": "Sounds solid. Ping me when you're ready — happy to review the Redis handling in particular since I know that part of the stack best."
+      }
+    ]
+  },
+  {
+    "id": "D-2026-004",
+    "channel": "#payments-incident",
+    "summary": "Ben reports a duplicate-refund incident caused by a race condition between the webhook consumer and the reconciliation cron, the team agrees on a Redis-lock fix, and Aiko flags a compliance reporting obligation.",
+    "participants": ["Ben Osei", "Aiko Tanaka", "Sarah Chen"],
+    "createdAt": "2026-07-05T07:00:00Z",
+    "messages": [
+      {
+        "timestamp": "2026-07-05T07:01:55Z",
+        "author": "Ben Osei",
+        "text": ":rotating_light: Incident: we issued duplicate refunds for 12 Stripe charge IDs overnight. Root cause appears to be a race between the new BullMQ webhook consumer and the nightly reconciliation cron — both tried to process `charge.refunded` for the same event ID simultaneously. Investigating now."
+      },
+      {
+        "timestamp": "2026-07-05T07:06:20Z",
+        "author": "Sarah Chen",
+        "text": "Ouch. Do we have idempotency keys in place on the Stripe API calls at least? That should prevent Stripe from double-applying on their end even if we call it twice."
+      },
+      {
+        "timestamp": "2026-07-05T07:08:44Z",
+        "author": "Ben Osei",
+        "text": "Yes, idempotency keys are set, so Stripe only issued the refund once. The problem is on our side — we wrote the refund record to PostgreSQL twice, so customer-facing refund history shows a duplicate entry, and our accounting ledger is off. No money was double-returned."
+      },
+      {
+        "timestamp": "2026-07-05T07:12:01Z",
+        "author": "Aiko Tanaka",
+        "text": "Glad money is okay. That said — duplicate ledger entries for refunds may need to be reported under our PCI-DSS incident log even if no funds were impacted. I'll check with legal, but heads up."
+      },
+      {
+        "timestamp": "2026-07-05T07:15:30Z",
+        "author": "Ben Osei",
+        "text": "Understood, Aiko. For the fix: I'm going to add a Redis SETNX distributed lock keyed on the Stripe event ID with a 30-second TTL before any refund write. First process to acquire the lock does the write; the second bails out after seeing the record already exists. Will have a PR up within the hour."
+      },
+      {
+        "timestamp": "2026-07-05T07:18:09Z",
+        "author": "Sarah Chen",
+        "text": "Good plan. Make sure the lock TTL is generous enough to survive a slow PostgreSQL write under load — 30 seconds sounds right. Also add a unit test that spins up two concurrent handlers for the same event ID."
+      },
+      {
+        "timestamp": "2026-07-05T07:22:44Z",
+        "author": "Ben Osei",
+        "text": "Will do. PR raised: fix/double-refund-race-condition. I've added concurrency tests using Jest's fake timers to simulate the race. Tagging you both for review."
+      }
+    ]
+  },
+  {
+    "id": "D-2026-005",
+    "channel": "#dev-infra",
+    "summary": "David Kim reports CMake config failures in new Docker containers that cause silent CPU-only builds; Sarah Jenkins helps diagnose the toolchain path collision and they agree on a CI assertion to catch it going forward.",
+    "participants": ["David Kim", "Sarah Jenkins"],
+    "createdAt": "2026-07-04T11:30:00Z",
+    "messages": [
+      {
+        "timestamp": "2026-07-04T11:30:58Z",
+        "author": "David Kim",
+        "text": "Is anyone else hitting CMake errors inside the new Docker containers? Getting: `CMake Error: Could not find CMAKE_TOOLCHAIN_FILE` on the CUDA spatial-reconstruction build. Works fine locally but fails in CI."
+      },
+      {
+        "timestamp": "2026-07-04T11:34:15Z",
+        "author": "Sarah Jenkins",
+        "text": "I saw something similar last week when I was benchmarking the fVDB integration. The container base image changed from `cuda:12.2-devel` to `cuda:12.3-devel` and the toolchain file path moved. Check if `CMAKE_TOOLCHAIN_FILE` is hardcoded somewhere in the build args."
+      },
+      {
+        "timestamp": "2026-07-04T11:37:02Z",
+        "author": "David Kim",
+        "text": "Found it — the Dockerfile `ENV` block has `CMAKE_TOOLCHAIN_FILE=/usr/local/cuda-12.2/cmake/cuda-toolchain.cmake`. That path doesn't exist in 12.3. But wait, the build still *succeeds* — it's just silently falling back to the system FindCUDA, which doesn't pick up our custom kernel flags."
+      },
+      {
+        "timestamp": "2026-07-04T11:40:33Z",
+        "author": "Sarah Jenkins",
+        "text": "Silent fallback is the worst kind of failure. That explains why last week's CI build produced binaries that were technically valid but ran everything on CPU — there was no CUDA_VISIBLE_DEVICES error, just terrible throughput. The fix is to use `$CUDA_HOME/cmake` which is symlinked and version-agnostic."
+      },
+      {
+        "timestamp": "2026-07-04T11:43:18Z",
+        "author": "David Kim",
+        "text": "Makes sense. I'll also add a CI step that asserts `nvidia-smi` returns at least one device post-build, so we catch this immediately if it happens again. PR coming: fix/cmake-cuda-path-collision."
+      },
+      {
+        "timestamp": "2026-07-04T11:45:50Z",
+        "author": "Sarah Jenkins",
+        "text": "Solid. Also consider adding `RUN cmake --version && nvcc --version` to the Docker build output so we have a permanent record of what toolchain versions were used for each image layer. Makes debugging this class of issue much faster."
+      },
+      {
+        "timestamp": "2026-07-04T11:47:12Z",
+        "author": "David Kim",
+        "text": "Good shout, adding that too. Will tag you for review once it's up."
+      }
+    ]
+  }
+]
